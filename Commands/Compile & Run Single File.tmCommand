@@ -12,19 +12,19 @@ FN=$(echo "${TM_FILENAME}" | sed 's/\.go$//g')
 
 export GOOS=darwin
 N=6
-if [ "$(uname -m)" = "i386" ]; then
+if [ "$(/usr/sbin/sysctl -n hw.cpu64bit_capable)" != "1" ]; then
 	N=8
 	export GOARCH=386
 else
 	export GOARCH=amd64
 fi
-if [ -d "$HOME/go" ]; then
-	export GOROOT="$HOME/go"
-elif [ -d "$HOME/src/go" ]; then
-	export GOROOT="$HOME/src/go"
+
+if [ -z "$GOROOT" ]; then
+	GOROOT=$( which 6g | sed 's:^\(.*\)/bin/${N}g$:\1:' )
+	export GOROOT="$GOROOT"
 fi
 
-echo '&lt;h2&gt;Compiling, linking and running ('$GOARCH')..&lt;/h2&gt;'
+echo '<h2>Compiling, linking and running ('$GOARCH')..</h2>'
 ${N}g -o ".$FN.${N}" "$TM_FILENAME"
 ${N}l -o ".$FN.${N}-out" ".$FN.${N}"
 ./".$FN.${N}-out" | pre
